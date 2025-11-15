@@ -1,0 +1,88 @@
+name: Automated Data Preprocessing
+
+on:
+  # Trigger on push to main branch
+  push:
+    branches:
+      - main
+    paths:
+      - 'iris_raw.csv'
+      - 'preprocessing/**'
+
+  # Trigger on pull request
+  pull_request:
+    branches:
+      - main
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  preprocess-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scikit-learn==1.5.0 matplotlib seaborn
+
+      - name: Run preprocessing automation
+        run: |
+          cd preprocessing
+          python automate_David-Dewanto.py
+
+      - name: Verify preprocessed data
+        run: |
+          if [ -f "preprocessing/iris_preprocessing.csv" ]; then
+            echo "✓ Preprocessed data file created successfully"
+            echo "File size: $(du -h preprocessing/iris_preprocessing.csv | cut -f1)"
+            echo "Number of rows: $(wc -l < preprocessing/iris_preprocessing.csv)"
+          else
+            echo "✗ Error: Preprocessed data file not found"
+            exit 1
+          fi
+
+      - name: Upload preprocessed dataset as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: iris-preprocessed-data
+          path: preprocessing/iris_preprocessing.csv
+          retention-days: 30
+
+      - name: Commit preprocessed data (if changed)
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add preprocessing/iris_preprocessing.csv || true
+          git diff --staged --quiet || git commit -m "Update preprocessed dataset [automated]"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+
+      - name: Summary
+        run: |
+          echo "### Preprocessing Summary :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Preprocessing completed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Outputs:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Preprocessed dataset: \`iris_preprocessing.csv\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Location: \`preprocessing/\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "preprocessing/iris_preprocessing.csv" ]; then
+            echo "**File Details:**" >> $GITHUB_STEP_SUMMARY
+            echo "- Size: $(du -h preprocessing/iris_preprocessing.csv | cut -f1)" >> $GITHUB_STEP_SUMMARY
+            echo "- Rows: $(wc -l < preprocessing/iris_preprocessing.csv)" >> $GITHUB_STEP_SUMMARY
+          fi
