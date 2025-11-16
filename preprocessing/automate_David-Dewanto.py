@@ -1,5 +1,5 @@
 """
-Automated Preprocessing Script for Iris Dataset
+Automated Preprocessing Script for Transactions Dataset
 Author: David Dewanto
 
 This script automates the preprocessing pipeline from the experimentation notebook.
@@ -95,24 +95,24 @@ def feature_engineering(df):
     """
     print("\nPerforming feature engineering...")
 
-    # Create area features
-    df['sepal_area'] = df['sepal length (cm)'] * df['sepal width (cm)']
-    df['petal_area'] = df['petal length (cm)'] * df['petal width (cm)']
+    # Create product features
+    df['amount_transactions_product'] = df['amount'] * df['total_transactions_user']
+    df['amount_avg_product'] = df['amount'] * df['avg_amount_user']
 
     # Create ratio features
-    df['sepal_ratio'] = df['sepal length (cm)'] / df['sepal width (cm)']
-    df['petal_ratio'] = df['petal length (cm)'] / df['petal width (cm)']
+    df['amount_avg_ratio'] = df['amount'] / df['avg_amount_user']
+    df['shipping_age_ratio'] = df['shipping_distance_km'] / (df['account_age_days'] + 1)
 
     print("Created 4 new features:")
-    print("  - sepal_area")
-    print("  - petal_area")
-    print("  - sepal_ratio")
-    print("  - petal_ratio")
+    print("  - amount_transactions_product")
+    print("  - amount_avg_product")
+    print("  - amount_avg_ratio")
+    print("  - shipping_age_ratio")
 
     return df
 
 
-def encode_target(df, target_column='species'):
+def encode_target(df, target_column='is_fraud'):
     """
     Encode the target variable
 
@@ -211,10 +211,11 @@ def preprocess_pipeline(input_file, output_file=None, test_size=0.2, random_stat
 
     # Define feature columns
     numerical_features = [
-        'sepal length (cm)',
-        'sepal width (cm)',
-        'petal length (cm)',
-        'petal width (cm)'
+        'account_age_days',
+        'total_transactions_user',
+        'avg_amount_user',
+        'amount',
+        'shipping_distance_km'
     ]
 
     # Step 1: Load data
@@ -230,14 +231,15 @@ def preprocess_pipeline(input_file, output_file=None, test_size=0.2, random_stat
     df = feature_engineering(df)
 
     # Step 5: Encode target
-    df, label_encoder = encode_target(df, 'species')
+    df, label_encoder = encode_target(df, 'is_fraud')
 
     # Define all feature columns (original + engineered)
     feature_columns = [
-        'sepal length (cm)', 'sepal width (cm)',
-        'petal length (cm)', 'petal width (cm)',
-        'sepal_area', 'petal_area',
-        'sepal_ratio', 'petal_ratio'
+        'account_age_days', 'total_transactions_user',
+        'avg_amount_user', 'amount',
+        'shipping_distance_km',
+        'amount_transactions_product', 'amount_avg_product',
+        'amount_avg_ratio', 'shipping_age_ratio'
     ]
 
     # Step 6: Scale features
@@ -281,8 +283,8 @@ def preprocess_pipeline(input_file, output_file=None, test_size=0.2, random_stat
 
 if __name__ == "__main__":
     # Example usage
-    input_path = '../iris_raw.csv'
-    output_path = 'iris_preprocessing.csv'
+    input_path = '../transactions.csv'
+    output_path = 'transactions_preprocessing.csv'
 
     # Run preprocessing pipeline
     results = preprocess_pipeline(

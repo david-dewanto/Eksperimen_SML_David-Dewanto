@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'iris_raw.csv'
+      - 'transactions.csv'
       - 'preprocessing/**'
 
   # Trigger on pull request
@@ -44,10 +44,10 @@ jobs:
 
       - name: Verify preprocessed data
         run: |
-          if [ -f "preprocessing/iris_preprocessing.csv" ]; then
+          if [ -f "preprocessing/transactions_preprocessing.csv" ]; then
             echo "✓ Preprocessed data file created successfully"
-            echo "File size: $(du -h preprocessing/iris_preprocessing.csv | cut -f1)"
-            echo "Number of rows: $(wc -l < preprocessing/iris_preprocessing.csv)"
+            echo "File size: $(du -h preprocessing/transactions_preprocessing.csv | cut -f1)"
+            echo "Number of rows: $(wc -l < preprocessing/transactions_preprocessing.csv)"
           else
             echo "✗ Error: Preprocessed data file not found"
             exit 1
@@ -56,15 +56,15 @@ jobs:
       - name: Upload preprocessed dataset as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iris-preprocessed-data
-          path: preprocessing/iris_preprocessing.csv
+          name: transactions-preprocessed-data
+          path: preprocessing/transactions_preprocessing.csv
           retention-days: 30
 
       - name: Commit preprocessed data (if changed)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add preprocessing/iris_preprocessing.csv || true
+          git add preprocessing/transactions_preprocessing.csv || true
           git diff --staged --quiet || git commit -m "Update preprocessed dataset [automated]"
 
       - name: Push changes
@@ -80,11 +80,11 @@ jobs:
           echo "✅ Preprocessing completed successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Outputs:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Preprocessed dataset: \`iris_preprocessing.csv\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Preprocessed dataset: \`transactions_preprocessing.csv\`" >> $GITHUB_STEP_SUMMARY
           echo "- Location: \`preprocessing/\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f "preprocessing/iris_preprocessing.csv" ]; then
+          if [ -f "preprocessing/transactions_preprocessing.csv" ]; then
             echo "**File Details:**" >> $GITHUB_STEP_SUMMARY
-            echo "- Size: $(du -h preprocessing/iris_preprocessing.csv | cut -f1)" >> $GITHUB_STEP_SUMMARY
-            echo "- Rows: $(wc -l < preprocessing/iris_preprocessing.csv)" >> $GITHUB_STEP_SUMMARY
+            echo "- Size: $(du -h preprocessing/transactions_preprocessing.csv | cut -f1)" >> $GITHUB_STEP_SUMMARY
+            echo "- Rows: $(wc -l < preprocessing/transactions_preprocessing.csv)" >> $GITHUB_STEP_SUMMARY
           fi
