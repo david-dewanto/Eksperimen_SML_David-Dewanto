@@ -1,16 +1,16 @@
-# Iris Dataset Data Experimentation
+# Transactions Dataset Data Experimentation
 
-Data experimentation project for Iris classification with automated preprocessing pipeline.
+Data experimentation project for fraud detection with automated preprocessing pipeline.
 
 ## Project Structure
 
 ```
 Eksperimen_SML_David-Dewanto/
-├── iris_raw.csv                              # Raw Iris dataset
+├── transactions.csv                          # Raw Transactions dataset
 ├── preprocessing/
 │   ├── Eksperimen_David-Dewanto.ipynb       # Experimentation notebook
 │   ├── automate_David-Dewanto.py            # Automated preprocessing script
-│   └── iris_preprocessing.csv               # Preprocessed dataset
+│   └── transactions_preprocessing.csv       # Preprocessed dataset
 ├── .github/workflows/
 │   └── preprocessing.yml                     # CI/CD automation workflow
 └── requirements.txt                          # Python dependencies
@@ -21,10 +21,11 @@ Eksperimen_SML_David-Dewanto/
 ### Data Preprocessing Pipeline
 - Missing value handling
 - Duplicate removal
-- Feature engineering (creates 8 features from original 4)
-- Label encoding for target variable
-- Feature scaling with StandardScaler
-- Train-test split
+- Exploratory Data Analysis (EDA)
+- Feature engineering (creates additional features from transaction data)
+- Feature selection (13 numerical features)
+- Label encoding for target variable (fraud detection)
+- Data validation and quality checks
 
 ### Automation
 - GitHub Actions workflow for automated preprocessing
@@ -46,7 +47,7 @@ cd preprocessing
 python automate_David-Dewanto.py
 ```
 
-This generates `iris_preprocessing.csv` with engineered features ready for model training.
+This generates `transactions_preprocessing.csv` with engineered features ready for model training.
 
 ### Experiment with Jupyter
 ```bash
@@ -55,13 +56,26 @@ jupyter notebook preprocessing/Eksperimen_David-Dewanto.ipynb
 
 ## Dataset Information
 
-**Input:** Iris dataset with 4 features (sepal length, sepal width, petal length, petal width)
+**Input:** Transactions dataset with transaction and user information
 
-**Output:** Preprocessed dataset with 8 engineered features:
-- Original 4 features (scaled)
-- 4 additional engineered features
+**Output:** Preprocessed dataset with 13 numerical features:
+- account_age_days
+- total_transactions_user
+- avg_amount_user
+- amount
+- promo_used
+- avs_match
+- cvv_result
+- three_ds_flag
+- shipping_distance_km
+- amount_transactions_product
+- amount_avg_product
+- amount_avg_ratio
+- shipping_age_ratio
 
-**Target:** 3 iris species (setosa, versicolor, virginica)
+**Target:** Binary classification (0 = non-fraud, 1 = fraud)
+
+**Task:** Fraud detection in financial transactions
 
 ## Author
 
